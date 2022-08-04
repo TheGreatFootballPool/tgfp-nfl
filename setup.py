@@ -9,7 +9,7 @@ with open('requirements.txt', encoding='utf8') as f:
 
 setup(
     name='yahoo-nfl',
-    version='1.0.0',
+    version='1.0.1',
     packages=['yahoo_nfl'],
     python_requires='>=3.10.*',
     url='https://github.com/johnsturgeon/yahoo-nfl',

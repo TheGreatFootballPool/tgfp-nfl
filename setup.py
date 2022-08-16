@@ -8,16 +8,16 @@ with open('requirements.txt', encoding='utf8') as f:
     requirements = f.readlines()
 
 setup(
-    name='yahoo-nfl',
-    version='1.0.1',
-    packages=['yahoo_nfl'],
+    name='tgfp-nfl',
+    version='2.0.0',
+    packages=['tgfp_nfl'],
     python_requires='>=3.10.*',
-    url='https://github.com/johnsturgeon/yahoo-nfl',
+    url='https://github.com/johnsturgeon/tgfp-nfl',
     license='MIT',
     author='John Sturgeon',
     author_email='john.sturgeon@me.com',
     install_requires=requirements,
-    description='Python extraction of NFL scores schedule data from Yahoo',
+    description='Python extraction of NFL scores schedule data from abstracted data source',
     long_description=long_description,
     long_description_content_type='text/markdown'
 )

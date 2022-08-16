@@ -1,6 +1,6 @@
 """
   This module contains all the necessary functions for interfacing with
-  yahoo for retrieving scores, schedule data, etc.
+  a data source (ESPN / Yahoo for example) for retrieving scores, schedule data, etc.
 """
 from urllib.request import Request, urlopen
 import re
@@ -8,8 +8,8 @@ import json
 from dateutil import parser
 
 
-class Yahoo:
-    """ The main class for interfacing with Yahoo's json for sports """
+class TgfpNfl:
+    """ The main class for interfacing with Data Source json for sports """
 
     def __init__(self, week_no):
         self._games = []
@@ -22,7 +22,7 @@ class Yahoo:
     def games(self):
         """
         Returns:
-            a list of all YahooGames in the json structure
+            a list of all TgfpNflGames in the json structure
         """
         if not self._games:
             all_headers = {'Host': 'sports.yahoo.com',
@@ -63,14 +63,14 @@ class Yahoo:
                     break
             for game_key in games_data:
                 if re.match(r'^nfl*', game_key):
-                    self._games.append(YahooGame(self, game_data=games_data[game_key]))
+                    self._games.append(TgfpNflGame(self, game_data=games_data[game_key]))
 
         return self._games
 
     def teams(self):
         """
         Returns:
-            a list of all YahooTeams
+            a list of all TgfpNflTeams
         """
         if not self._teams:
             all_headers = {'Host': 'sports.yahoo.com',
@@ -102,7 +102,7 @@ class Yahoo:
             for team_key in teams_data:
                 if 'default_league' in teams_data[team_key] and \
                    teams_data[team_key]['default_league'] == "nfl":
-                    self._teams.append(YahooTeam(self, team_data=teams_data[team_key]))
+                    self._teams.append(TgfpNflTeam(self, team_data=teams_data[team_key]))
 
         return self._teams
 
@@ -123,20 +123,20 @@ class Yahoo:
         return found_teams
 
 
-class YahooGame:
-    """ A single game from the Yahoo json """
+class TgfpNflGame:
+    """ A single game from the Data Source json """
     # pylint: disable=too-many-instance-attributes
 
-    def __init__(self, yahoo, game_data):
+    def __init__(self, data_source, game_data):
         # pylint: disable=invalid-name
         self.id = game_data['gameid']
         # pylint: enable=invalid-name
-        self.yahoo = yahoo
+        self.data_source = data_source
         self.game_data = game_data
-        self.home_team = yahoo.find_teams(team_id=game_data['home_team_id'])[0]
-        self.away_team = yahoo.find_teams(team_id=game_data['away_team_id'])[0]
+        self.home_team = data_source.find_teams(team_id=game_data['home_team_id'])[0]
+        self.away_team = data_source.find_teams(team_id=game_data['away_team_id'])[0]
         self.start_time = parser.parse(game_data['start_time'])
-        self.winning_team = yahoo.find_teams(team_id=game_data['winning_team_id'])[0]
+        self.winning_team = data_source.find_teams(team_id=game_data['winning_team_id'])[0]
         self.total_home_points = game_data['total_home_points']
         self.total_away_points = game_data['total_away_points']
         self.score_is_final = game_data['status_type'] == "final"
@@ -147,13 +147,17 @@ class YahooGame:
     def odds(self):
         """
         Returns:
-            all the 'odds' from the Yahoo JSON
+            all the 'odds' from the Data Source JSON
         """
         if not self._odds:
             if 'odds' in self.game_data:
                 for odd in self.game_data['odds']:
                     self._odds.append(
-                        YahooOdd(yahoo=self.yahoo, odd_data=self.game_data['odds'][odd]))
+                        TgfpNflOdd(
+                            data_source=self.data_source,
+                            odd_data=self.game_data['odds'][odd]
+                        )
+                    )
 
         return self._odds
 
@@ -173,13 +177,13 @@ class YahooGame:
         return average_spread
 
 
-class YahooTeam:
-    """ The class that wraps the Yahoo JSON for each team """
+class TgfpNflTeam:
+    """ The class that wraps the Data Source JSON for each team """
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=too-few-public-methods
 
-    def __init__(self, yahoo, team_data):
-        self.yahoo = yahoo
+    def __init__(self, data_source, team_data):
+        self.data_source = data_source
         self.data = team_data
 # pylint: disable=invalid-name
         self.id = team_data['team_id']
@@ -200,22 +204,22 @@ class YahooTeam:
         Args:
             tgfp_teams: list of teams to loop through
         Returns:
-            the tgfp_id for the current yahoo team, None if not found
+            the tgfp_id for the current data_source's team, None if not found
         """
         found_team_id = None
         for team in tgfp_teams:
-            if self.id == team.yahoo_team_id:
+            if self.id == team.tgfp_nfl_team_id:
                 found_team_id = team.id
                 break
         return found_team_id
 
 
-class YahooOdd:
-    """ Wraps the yahoo json for each 'odd' (spread) """
+class TgfpNflOdd:
+    """ Wraps the data source json for each 'odd' (spread) """
     # pylint: disable=too-few-public-methods
 
-    def __init__(self, yahoo, odd_data):
-        self.yahoo = yahoo
+    def __init__(self, data_source, odd_data):
+        self.data_source = data_source
         self.data = odd_data
         # pylint: disable=invalid-name
         self.id = odd_data['book_id']

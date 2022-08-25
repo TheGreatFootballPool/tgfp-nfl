@@ -128,3 +128,6 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+!/.pytest_cache/
+tests/team_data.json
+tests/games_data.json

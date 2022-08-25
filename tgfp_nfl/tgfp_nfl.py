@@ -129,7 +129,7 @@ class TgfpNflGame:
 
     def __init__(self, data_source, game_data):
         # pylint: disable=invalid-name
-        self.id = game_data['gameid']
+        self.id: str = game_data['gameid']
         # pylint: enable=invalid-name
         self.data_source = data_source
         self.game_data = game_data
@@ -164,7 +164,7 @@ class TgfpNflGame:
     def average_home_spread(self):
         """ Takes all the odds and averages them out """
         number_of_odds = len(self.odds())
-        print("number of odds: %d" % number_of_odds)
+        print(f"number of odds: {number_of_odds:d}")
         home_spread_total = 0.0
         average_spread = None
         if self.odds():
@@ -181,13 +181,12 @@ class TgfpNflTeam:
     """ The class that wraps the Data Source JSON for each team """
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=too-few-public-methods
-
     def __init__(self, data_source, team_data):
         self.data_source = data_source
         self.data = team_data
-# pylint: disable=invalid-name
+        # pylint: disable=invalid-name
         self.id = team_data['team_id']
-# pylint: enable=invalid-name
+        # pylint: enable=invalid-name
         self.full_name = team_data['full_name']
         self.logo_url = team_data['sportacularLogo']
         if 'team_standing' in team_data:

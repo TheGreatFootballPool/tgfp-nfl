@@ -24,7 +24,9 @@ class TgfpNfl:
         Returns:
             a list of all TgfpNflGames in the json structure
         """
-        if not self._games:
+        if self._games:
+            return self._games
+        if not self.games_data:
             all_headers = {'Host': 'sports.yahoo.com',
                            'Accept':
                            'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -61,9 +63,10 @@ class TgfpNfl:
                         except IOError:
                             print('could not write games data to json')
                     break
-            for game_key in games_data:
-                if re.match(r'^nfl*', game_key):
-                    self._games.append(TgfpNflGame(self, game_data=games_data[game_key]))
+            self.games_data = games_data
+        for game_key in self.games_data:
+            if re.match(r'^nfl*', game_key):
+                self._games.append(TgfpNflGame(self, game_data=self.games_data[game_key]))
 
         return self._games
 
@@ -72,7 +75,9 @@ class TgfpNfl:
         Returns:
             a list of all TgfpNflTeams
         """
-        if not self._teams:
+        if self._teams:
+            return self._teams
+        if not self.teams_data:
             all_headers = {'Host': 'sports.yahoo.com',
                            'Accept':
                            'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
@@ -99,10 +104,11 @@ class TgfpNfl:
                         except IOError:
                             print('could not write team data to json file')
                     break
-            for team_key in teams_data:
-                if 'default_league' in teams_data[team_key] and \
-                   teams_data[team_key]['default_league'] == "nfl":
-                    self._teams.append(TgfpNflTeam(self, team_data=teams_data[team_key]))
+            self.teams_data = teams_data
+        for team_key in self.teams_data:
+            if 'default_league' in self.teams_data[team_key] and \
+               self.teams_data[team_key]['default_league'] == "nfl":
+                self._teams.append(TgfpNflTeam(self, team_data=self.teams_data[team_key]))
 
         return self._teams
 

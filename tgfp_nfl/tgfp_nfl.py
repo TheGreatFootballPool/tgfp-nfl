@@ -2,6 +2,7 @@
   This module contains all the necessary functions for interfacing with
   a data source (ESPN / Yahoo for example) for retrieving scores, schedule data, etc.
 """
+from __future__ import annotations
 from urllib.request import Request, urlopen
 import re
 import json
@@ -116,7 +117,7 @@ class TgfpNfl:
         """ There are currently no filters for this, so it just finds all games """
         return self.games()
 
-    def find_teams(self, team_id=None):
+    def find_teams(self, team_id=None) -> [TgfpNflTeam]:
         """ returns a list of all teams optionally filtered by a single team_id """
         found_teams = []
         for team in self.teams():

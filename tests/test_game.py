@@ -7,7 +7,7 @@ shutup_pylint = tgfp_nfl_obj
 # pylint: disable=redefined-outer-name
 def test_game(tgfp_nfl_obj: TgfpNfl):
     """ Test the 'game' object  """
-    # assert len(tgfp_nfl.games()) == 16
+    assert len(tgfp_nfl_obj.games()) == 16
     game_1: TgfpNflGame = tgfp_nfl_obj.games()[0]
     print(game_1)
     assert isinstance(game_1.away_team, TgfpNflTeam)

@@ -17,6 +17,6 @@ def tgfp_nfl_obj() -> TgfpNfl:
     with open('data/games_data.json', 'r', encoding='utf-8') as game_json_data:
         games_data: dict = json.load(game_json_data)
     patched_tgfp = TgfpNfl(week_no=1)
-    patched_tgfp.games_data = games_data
-    patched_tgfp.teams_data = teams_data
+    patched_tgfp._games_data = games_data
+    patched_tgfp._teams_data = teams_data
     return patched_tgfp

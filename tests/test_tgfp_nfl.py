@@ -61,3 +61,9 @@ def test_tgfp_nfl_odd(tgfp_nfl_obj: TgfpNfl):
     game_1: TgfpNflGame = tgfp_nfl_obj.games()[0]
     odd_1: TgfpNflOdd = game_1.odds()[0]
     assert odd_1.home_spread == '2.5'
+
+
+def test_api():
+    tgfp_nfl_obj: TgfpNfl = TgfpNfl(week_no=1)
+    assert len(tgfp_nfl_obj.games()) > 10
+    assert len(tgfp_nfl_obj.games()) < 20

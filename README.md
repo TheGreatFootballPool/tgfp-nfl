@@ -8,3 +8,6 @@ Python Package for scraping the external site's NFL data (scores, schedule, odds
    * `doppler setup --config tst --project greatfootballpool`
 * Add the following environment to the unit test:
    * `DOPPLER_ENV=1`
+
+## Publishing to pypi
+* Run 'publish to pypi' configuration

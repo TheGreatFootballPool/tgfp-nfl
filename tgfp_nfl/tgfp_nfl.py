@@ -137,12 +137,14 @@ class TgfpNfl:
         """ There are currently no filters for this, so it just finds all games """
         return self.games()
 
-    def find_teams(self, team_id=None) -> [TgfpNflTeam]:
+    def find_teams(self, team_id=None, short_name=None) -> [TgfpNflTeam]:
         """ returns a list of all teams optionally filtered by a single team_id """
         found_teams = []
         for team in self.teams():
             found = True
             if team_id and team_id != team.id:
+                found = False
+            if short_name and short_name != team.short_name:
                 found = False
             if found:
                 found_teams.append(team)
@@ -178,31 +180,45 @@ class TgfpNflGame:
         self._odds_source_data: List = game_data['competitions'][0]['odds']
         self._home_team: Optional[TgfpNflTeam] = None
         self._away_team: Optional[TgfpNflTeam] = None
+        self._favored_team: Optional[TgfpNflTeam] = None
         self._winning_team: Optional[TgfpNflTeam] = None
+        self._spread: float = 0.0
         self._total_home_points: int = 0
         self._total_away_points: int = 0
-        self._odds: Optional[TgfpNflOdd] = None
         self.start_time = parser.parse(game_data['date'])
         self.game_status_type = game_data['status']['type']['name']
 
-    @property
-    def odds(self) -> Optional[TgfpNflOdd]:
+    def _odds(self) -> Optional[TgfpNflOdd]:
         """
         Returns:
             the first odds, ignoring all others
         """
-        if self._odds:
-            return self._odds
+        return_odds: Optional[TgfpNflOdd] = None
         if self._odds_source_data:
             first_odd: dict = self._odds_source_data[0]
-            new_odd: TgfpNflOdd = TgfpNflOdd(
+            return_odds= TgfpNflOdd(
                 data_source=self._data_source,
                 odd_data=first_odd
             )
             #  Only set the odds if they're not zero (pick-em), otherwise return None
-            if new_odd.favored_team_spread > 0.0:
-                self._odds = new_odd
-        return self._odds
+            if return_odds.favored_team_spread > 0.0:
+                return return_odds
+            else:
+                return None
+
+    @property
+    def favored_team(self) -> Optional[TgfpNflTeam]:
+        if self._favored_team:
+            return self._favored_team
+        self.__set_home_away_favorite_teams_and_score()
+        return self._favored_team
+
+    @property
+    def spread(self):
+        if self._spread:
+            return self._spread
+        self.__set_home_away_favorite_teams_and_score()
+        return self._spread
 
     @property
     def score_is_final(self):
@@ -212,14 +228,14 @@ class TgfpNflGame:
     def home_team(self):
         if self._home_team:
             return self._home_team
-        self.set_home_away_teams_and_score()
+        self.__set_home_away_favorite_teams_and_score()
         return self._home_team
 
     @property
     def away_team(self) -> TgfpNflTeam:
         if self._away_team:
             return self._away_team
-        self.set_home_away_teams_and_score()
+        self.__set_home_away_favorite_teams_and_score()
         return self._away_team
 
     @property
@@ -238,7 +254,7 @@ class TgfpNflGame:
         if self._total_home_points:
             return self._total_home_points
         else:
-            self.set_home_away_teams_and_score()
+            self.__set_home_away_favorite_teams_and_score()
         return self._total_home_points
 
     @property
@@ -246,11 +262,16 @@ class TgfpNflGame:
         if self._total_away_points:
             return self._total_away_points
         else:
-            self.set_home_away_teams_and_score()
+            self.__set_home_away_favorite_teams_and_score()
         return self._total_away_points
 
-    def set_home_away_teams_and_score(self):
+    def __set_home_away_favorite_teams_and_score(self):
         teams: List = self._game_source_data['competitions'][0]['competitors']
+        if self._odds():
+            self._favored_team = self._data_source.find_teams(
+                short_name=self._odds().favored_team_short_name
+            )[0]
+            self._spread = self._odds().favored_team_spread
         if teams[0]['homeAway'] == 'home':
             self._total_home_points = teams[0]['score']
             self._home_team = self._data_source.find_teams(team_id=teams[0]['uid'])[0]

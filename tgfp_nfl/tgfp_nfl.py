@@ -181,41 +181,28 @@ class TgfpNflGame:
         self._winning_team: Optional[TgfpNflTeam] = None
         self._total_home_points: int = 0
         self._total_away_points: int = 0
-        self._odds: List[TgfpNflOdd] = []
+        self._odds: Optional[TgfpNflOdd] = None
         self.start_time = parser.parse(game_data['date'])
         self.game_status_type = game_data['status']['type']['name']
 
-    def odds(self):
+    @property
+    def odds(self) -> Optional[TgfpNflOdd]:
         """
         Returns:
-            all the 'odds' from the Data Source JSON
+            the first odds, ignoring all others
         """
         if self._odds:
             return self._odds
-        for odd in self._odds_source_data:
-            nfl_odd: TgfpNflOdd = TgfpNflOdd(
+        if self._odds_source_data:
+            first_odd: dict = self._odds_source_data[0]
+            new_odd: TgfpNflOdd = TgfpNflOdd(
                 data_source=self._data_source,
-                odd_data=odd
+                odd_data=first_odd
             )
-            self._odds.append(nfl_odd)
+            #  Only set the odds if they're not zero (pick-em), otherwise return None
+            if new_odd.favored_team_spread > 0.0:
+                self._odds = new_odd
         return self._odds
-
-    def average_spread(self):
-        """ Takes all the odds and averages them out """
-        number_of_odds: int = len(self.odds())
-        spread_total: float = 0.0
-        spread_average: float = 0.0
-        if self.odds():
-            odd: TgfpNflOdd
-            for odd in self.odds():
-                if odd.favored_team_spread:
-                    spread_total += odd.favored_team_spread
-            if number_of_odds:
-                spread_average = spread_total / number_of_odds
-
-        if spread_average < 0:
-            spread_average = spread_average * -1.0
-        return spread_average
 
     @property
     def score_is_final(self):
@@ -321,7 +308,7 @@ class TgfpNflOdd:
     @property
     def favored_team_short_name(self) -> str:
         favorite: str = self._odd_source_data['details']
-        return favorite.split()[0]
+        return favorite.split()[0].lower()
 
     @property
     def favored_team_spread(self) -> float:

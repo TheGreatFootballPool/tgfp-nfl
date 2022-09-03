@@ -40,21 +40,11 @@ def test_games(tgfp_nfl_obj: TgfpNfl):
 
 def test_odds(tgfp_nfl_obj: TgfpNfl):
     for game in tgfp_nfl_obj.games():
-        assert len(game.odds()) > 0
-        odd: TgfpNflOdd
-        for odd in game.odds():
-            assert len(odd.favored_team_short_name) >= 2
-            assert len(odd.favored_team_short_name) <= 3
-            assert isinstance(odd.favored_team_spread, float)
-            assert odd.favored_team_spread > 0
-
-
-def test_average_home_spread(tgfp_nfl_obj: TgfpNfl):
-    game_1: TgfpNflGame = tgfp_nfl_obj.games()[0]
-    assert len(game_1.odds()) == 1
-    odd_1: TgfpNflOdd = game_1.odds()[0]
-    assert odd_1.favored_team_spread == 2.5
-    assert game_1.average_spread() == 2.5
+        odd: TgfpNflOdd = game.odds
+        assert len(odd.favored_team_short_name) >= 2
+        assert len(odd.favored_team_short_name) <= 3
+        assert isinstance(odd.favored_team_spread, float)
+        assert odd.favored_team_spread > 0
 
 
 def test_find_games(tgfp_nfl_obj: TgfpNfl):
@@ -70,7 +60,7 @@ def test_find_teams(tgfp_nfl_obj: TgfpNfl):
 
 def test_tgfp_nfl_odd(tgfp_nfl_obj: TgfpNfl):
     game_1: TgfpNflGame = tgfp_nfl_obj.games()[0]
-    odd_1: TgfpNflOdd = game_1.odds()[0]
+    odd_1: TgfpNflOdd = game_1.odds
     assert odd_1.favored_team_spread == 2.5
 
 

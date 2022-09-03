@@ -3,10 +3,14 @@
   a data source (ESPN / Yahoo for example) for retrieving scores, schedule data, etc.
 """
 from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Optional, List, Dict
 from urllib.request import Request, urlopen
 import re
 import json
 from dateutil import parser
+import httpx
 
 
 class TgfpNfl:
@@ -15,103 +19,119 @@ class TgfpNfl:
     def __init__(self, week_no, debug=False):
         self._games = []
         self._teams = []
-        self._games_data = None
-        self._teams_data = None
+        self._standings = []
+        self._games_source_data = None
+        self._teams_source_data = None
+        self._standings_source_data = None
         self._debug = debug
         self._week_no = week_no
+        self._base_url = 'https://site.api.espn.com/apis/v2/sports/football/nfl/'
+        self._base_site_url = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl'
 
-    def games(self):
+    def __get_games_source_data(self) -> List:
+        """ Get Games from ESPN -- defaults to current season
+        :season_type:
+           -Season types are:
+            1: Preseason
+                weeks 1-4 (HOF game is week=1)
+            2: Regular Season
+                weeks 1-18
+            3: Post Season
+                Week #'s
+                -#1 = Wild Card Round
+                -#2 = Divisional Round
+                -#3 = Conference Championships
+                -#4 = Super Bowl
+        if week number is > 18 we shift season type to '3', otherwise we use 2
+        :return: list of games
+        """
+        content: dict = {}
+        season_type = 3 if self._week_no > 18 else 2
+        url_to_query = self._base_site_url + f'/scoreboard?seasontype={season_type}&week={self._week_no}'
+        try:
+            response = httpx.get(url_to_query)
+            content = response.json()
+        except httpx.RequestError:
+            print('HTTP Request failed')
+        return content['events']
+
+    def __get_teams_source_data(self) -> List:
+        """ Get Teams from ESPN
+        :return: list of teams
+        """
+        content: dict = {}
+        url_to_query = self._base_site_url + '/teams'
+        try:
+            response = httpx.get(url_to_query)
+            content = response.json()
+        except httpx.RequestError:
+            print('HTTP Request failed')
+        return content['sports'][0]['leagues'][0]['teams']
+
+    def __get_standings_source_data(self) -> List:
+        """ Get Standings from ESPN
+        :return: list of teams / standings
+        """
+        content: dict = {}
+        url_to_query = self._base_url + '/standings?seasontype=2'
+        try:
+            response = httpx.get(url_to_query)
+            content = response.json()
+        except httpx.RequestError:
+            print('HTTP Request failed')
+        afc_standings: List = content['children'][0]['standings']['entries']
+        nfc_standings: List = content['children'][1]['standings']['entries']
+        all_standings: List = afc_standings + nfc_standings
+        return all_standings
+
+    def games(self) -> List[TgfpNflGame]:
         """
         Returns:
             a list of all TgfpNflGames in the json structure
         """
         if self._games:
             return self._games
-        if not self._games_data:
-            all_headers = {'Host': 'sports.yahoo.com',
-                           'Accept':
-                           'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                           'Connection': 'keep-alive',
-                           'Accept-Language': 'en-us',
-                           'DNT': '1',
-                           'User-Agent':
-                           'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13)" + \
-                            "AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0  Safari/604.1.38'
-                           }
-            # pylint: disable=invalid-name
-            # schedState matches the url variable
-            schedule_state = 2
-            # if we're in the playoffs, we need to bump the schedState variable to 3
-            week_no = self._week_no
-            if self._week_no > 18:
-                schedule_state = 3
-            url_to_query = f'https://sports.yahoo.com/nfl/scoreboard/?dateRange={week_no}&'
-            url_to_query += f'dateRangeDisplay={week_no}&schedState={schedule_state}'
-            req = Request(url_to_query, headers=all_headers)
-            # pylint: disable=consider-using-with
-            raw_game_data = urlopen(req).read().decode('utf-8')
-            games_data = None
-            for line in raw_game_data.splitlines():
-                if re.match(r'^root.App.main.*', line):
-                    split_line = line.split(' = ')[1].rstrip(';')
-                    all_data = json.loads(split_line)
-                    stores = all_data['context']['dispatcher']['stores']
-                    games_data = stores['GamesStore']['games']
-                    if self._debug:
-                        try:
-                            with open('_games_data.json', 'w', encoding='utf-8') as outfile:
-                                json.dump(games_data, outfile)
-                        except IOError:
-                            print('could not write games data to json')
-                    break
-            self._games_data = games_data
-        for game_key in self._games_data:
-            if re.match(r'^nfl*', game_key):
-                self._games.append(TgfpNflGame(self, game_data=self._games_data[game_key]))
+        if not self._games_source_data:
+            self._games_source_data = self.__get_games_source_data()
+        for game_data in self._games_source_data:
+            self._games.append(TgfpNflGame(self, game_data=game_data))
 
         return self._games
 
-    def teams(self):
+    def teams(self) -> List[TgfpNflTeam]:
         """
+        Build a list of teams using the teams source and standings source data
         Returns:
             a list of all TgfpNflTeams
         """
         if self._teams:
             return self._teams
-        if not self._teams_data:
-            all_headers = {'Host': 'sports.yahoo.com',
-                           'Accept':
-                           'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-                           'Connection': 'keep-alive',
-                           'Accept-Language': 'en-us',
-                           'DNT': '1',
-                           'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_13) " +\
-                           "AppleWebKit/604.1.38 (KHTML, like Gecko) Version/11.0  Safari/604.1.38'
-                           }
-            req = Request('https://sports.yahoo.com/nfl/standings/', headers=all_headers)
-            # pylint: disable=consider-using-with
-            raw_teams_data = urlopen(req).read().decode('utf-8')
-            teams_data = None
-            for line in raw_teams_data.splitlines():
-                if re.match(r'^root.App.main.*', line):
-                    split_line = line.split(' = ')[1].rstrip(';')
-                    all_data = json.loads(split_line)
-                    stores = all_data['context']['dispatcher']['stores']
-                    teams_data = stores['TeamsStore']['teams']
-                    if self._debug:
-                        try:
-                            with open('team_data.json', 'w', encoding='utf-8') as outfile:
-                                json.dump(teams_data, outfile)
-                        except IOError:
-                            print('could not write team data to json file')
-                    break
-            self._teams_data = teams_data
-        for team_key in self._teams_data:
-            if 'default_league' in self._teams_data[team_key] and \
-               self._teams_data[team_key]['default_league'] == "nfl":
-                self._teams.append(TgfpNflTeam(self, team_data=self._teams_data[team_key]))
-
+        if not self._teams_source_data:
+            self._teams_source_data = self.__get_teams_source_data()
+        if not self._standings_source_data:
+            self._standings_source_data = self.__get_standings_source_data()
+        for team_data in self._teams_source_data:
+            single_team_data: dict = team_data['team']
+            team_id: str = single_team_data['uid']
+            single_team_standings: TgfpNflStanding = self.find_tgfp_nfl_standing_for_team(team_id)
+            team: TgfpNflTeam = TgfpNflTeam(single_team_data, single_team_standings)
+            self._teams.append(team)
         return self._teams
+
+    def standings(self) -> List[Dict]:
+        """
+        Returns:
+            a list of all TgfpNflGames in the json structure
+        """
+        if self._standings:
+            return self._standings
+        if not self._standings_source_data:
+            self._standings_source_data = self.__get_standings_source_data()
+        for standing_data in self._standings_source_data:
+            self._standings.append(TgfpNflStanding(
+                standing_data
+            ))
+        return self._standings
 
     def find_games(self):
         """ There are currently no filters for this, so it just finds all games """
@@ -129,81 +149,151 @@ class TgfpNfl:
 
         return found_teams
 
+    def find_tgfp_nfl_standing_for_team(self, team_id: str) -> TgfpNflStanding:
+        """ Returns the 'TgfpNflStanding' for a team in the form of a dict
+            'wins': <int>
+            'losses': <int>
+            'ties': <int>
+        """
+        standing: TgfpNflStanding
+        for standing in self.standings():
+            found = True
+            if team_id == standing.team_id:
+                return standing
+        return TgfpNflStanding(team_id, 0, 0, 0)
+
 
 class TgfpNflGame:
     """ A single game from the Data Source json """
+
     # pylint: disable=too-many-instance-attributes
 
-    def __init__(self, data_source, game_data):
+    def __init__(self, data_source: TgfpNfl, game_data):
         # pylint: disable=invalid-name
-        self.id: str = game_data['gameid']
+        self.id: str = game_data['uid']
         # pylint: enable=invalid-name
-        self.data_source = data_source
-        self.game_data = game_data
-        self.home_team = data_source.find_teams(team_id=game_data['home_team_id'])[0]
-        self.away_team = data_source.find_teams(team_id=game_data['away_team_id'])[0]
-        self.start_time = parser.parse(game_data['start_time'])
-        self.winning_team = data_source.find_teams(team_id=game_data['winning_team_id'])[0]
-        self.total_home_points = game_data['total_home_points']
-        self.total_away_points = game_data['total_away_points']
-        self.score_is_final = game_data['status_type'] == "final"
-        self.status_type = game_data['status_type']
-
-        self._odds = []
+        self._data_source = data_source
+        self._game_source_data = game_data
+        self._game_status_source_data: dict = game_data['competitions'][0]['status']
+        self._odds_source_data: List = game_data['competitions'][0]['odds']
+        self._home_team: Optional[TgfpNflTeam] = None
+        self._away_team: Optional[TgfpNflTeam] = None
+        self._winning_team: Optional[TgfpNflTeam] = None
+        self._total_home_points: int = 0
+        self._total_away_points: int = 0
+        self._odds: List[TgfpNflOdd] = []
+        self.start_time = parser.parse(game_data['date'])
+        self.game_status_type = game_data['status']['type']['name']
 
     def odds(self):
         """
         Returns:
             all the 'odds' from the Data Source JSON
         """
-        if not self._odds:
-            if 'odds' in self.game_data:
-                for odd in self.game_data['odds']:
-                    self._odds.append(
-                        TgfpNflOdd(
-                            data_source=self.data_source,
-                            odd_data=self.game_data['odds'][odd]
-                        )
-                    )
-
+        if self._odds:
+            return self._odds
+        for odd in self._odds_source_data:
+            nfl_odd: TgfpNflOdd = TgfpNflOdd(
+                data_source=self._data_source,
+                odd_data=odd
+            )
+            self._odds.append(nfl_odd)
         return self._odds
 
-    def average_home_spread(self):
+    def average_spread(self):
         """ Takes all the odds and averages them out """
-        number_of_odds = len(self.odds())
-        print(f"number of odds: {number_of_odds:d}")
-        home_spread_total = 0.0
-        average_spread = None
+        number_of_odds: int = len(self.odds())
+        spread_total: float = 0.0
+        spread_average: float = 0.0
         if self.odds():
+            odd: TgfpNflOdd
             for odd in self.odds():
-                print(odd.data)
-                if odd.home_spread:
-                    home_spread_total += float(odd.home_spread)
-            average_spread = home_spread_total / number_of_odds
+                if odd.favored_team_spread:
+                    spread_total += odd.favored_team_spread
+            if number_of_odds:
+                spread_average = spread_total / number_of_odds
 
-        return average_spread
+        if spread_average < 0:
+            spread_average = spread_average * -1.0
+        return spread_average
+
+    @property
+    def score_is_final(self):
+        return self.game_status_type == 'STATUS_FINAL'
+
+    @property
+    def home_team(self):
+        if self._home_team:
+            return self._home_team
+        self.set_home_away_teams_and_score()
+        return self._home_team
+
+    @property
+    def away_team(self) -> TgfpNflTeam:
+        if self._away_team:
+            return self._away_team
+        self.set_home_away_teams_and_score()
+        return self._away_team
+
+    @property
+    def winning_team(self) -> Optional[TgfpNflTeam]:
+        teams: List = self._game_source_data['competitions'][0]['competitors']
+        if not self._winning_team:
+            if 'winner' in teams[0]:
+                if self._home_team.id == teams[0]['uid']:
+                    self._winning_team = self._home_team
+                else:
+                    self._winning_team = self._away_team
+        return self._winning_team
+
+    @property
+    def total_home_points(self) -> int:
+        if self._total_home_points:
+            return self._total_home_points
+        else:
+            self.set_home_away_teams_and_score()
+        return self._total_home_points
+
+    @property
+    def total_away_points(self) -> int:
+        if self._total_away_points:
+            return self._total_away_points
+        else:
+            self.set_home_away_teams_and_score()
+        return self._total_away_points
+
+    def set_home_away_teams_and_score(self):
+        teams: List = self._game_source_data['competitions'][0]['competitors']
+        if teams[0]['homeAway'] == 'home':
+            self._total_home_points = teams[0]['score']
+            self._home_team = self._data_source.find_teams(team_id=teams[0]['uid'])[0]
+            self._total_away_points = teams[1]['score']
+            self._away_team = self._data_source.find_teams(team_id=teams[1]['uid'])[0]
+        else:
+            self._total_home_points = teams[1]['score']
+            self._home_team = self._data_source.find_teams(team_id=teams[1]['uid'])[0]
+            self._total_away_points = teams[0]['score']
+            self._away_team = self._data_source.find_teams(team_id=teams[0]['uid'])[0]
 
 
 class TgfpNflTeam:
     """ The class that wraps the Data Source JSON for each team """
+
     # pylint: disable=too-many-instance-attributes
     # pylint: disable=too-few-public-methods
-    def __init__(self, data_source, team_data):
-        self.data_source = data_source
+    def __init__(self, team_data: Dict, team_standings: TgfpNflStanding):
         self.data = team_data
         # pylint: disable=invalid-name
-        self.id = team_data['team_id']
+        self.id = team_data['uid']
         # pylint: enable=invalid-name
-        self.full_name = team_data['full_name']
-        self.logo_url = team_data['sportacularLogo']
-        if 'team_standing' in team_data:
-            self.wins = team_data['team_standing']['team_record']['wins']
-            self.losses = team_data['team_standing']['team_record']['losses']
-            self.ties = team_data['team_standing']['team_record']['ties']
-        else:
-            self.wins = 0
-            self.losses = 0
-            self.ties = 0
+        self.city = team_data['location']
+        self.long_name = team_data['shortDisplayName']
+        self.short_name: str = str(team_data['abbreviation']).lower()
+        self.full_name = team_data['displayName']
+        self.logo_url = team_data['logos'][0]['href']
+        self.wins = team_standings.wins
+        self.losses = team_standings.losses
+        self.ties = team_standings.ties
 
     def tgfp_id(self, tgfp_teams):
         """
@@ -225,9 +315,33 @@ class TgfpNflOdd:
     # pylint: disable=too-few-public-methods
 
     def __init__(self, data_source, odd_data):
-        self.data_source = data_source
-        self.data = odd_data
-        # pylint: disable=invalid-name
-        self.id = odd_data['book_id']
-        # pylint: enable=invalid-name
-        self.home_spread = odd_data['home_spread']
+        self._data_source = data_source
+        self._odd_source_data = odd_data
+
+    @property
+    def favored_team_short_name(self) -> str:
+        favorite: str = self._odd_source_data['details']
+        return favorite.split()[0]
+
+    @property
+    def favored_team_spread(self) -> float:
+        favorite: str = self._odd_source_data['details']
+        spread: float = float(favorite.split()[1]) * -1
+        return spread
+
+
+class TgfpNflStanding:
+    """ Wraps the data source json for standings data for a team"""
+
+    def __init__(self, source_standings_data: dict):
+        self.team_id: str = source_standings_data['team']['uid']
+        self.wins = 0
+        self.losses = 0
+        self.ties = 0
+        for stat in source_standings_data['stats']:
+            if stat['type'] == 'wins':
+                self.wins = stat['value']
+            if stat['type'] == 'losses':
+                self.losses = stat['value']
+            if stat['type'] == 'ties':
+                self.ties = stat['value']

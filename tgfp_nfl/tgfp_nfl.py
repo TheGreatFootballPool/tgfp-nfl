@@ -283,6 +283,13 @@ class TgfpNflGame:
             self._total_away_points = teams[0]['score']
             self._away_team = self._data_source.find_teams(team_id=teams[0]['uid'])[0]
 
+    @property
+    def extra_info(self) -> dict:
+        return {
+            'description': self._game_source_data['name'],
+            'game_time': self._game_source_data['status']['type']['detail']
+        }
+
 
 class TgfpNflTeam:
     """ The class that wraps the Data Source JSON for each team """

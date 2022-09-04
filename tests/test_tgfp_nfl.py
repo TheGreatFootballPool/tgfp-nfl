@@ -66,6 +66,14 @@ def test_tgfp_nfl_odd(tgfp_nfl_obj: TgfpNfl):
     assert odd_1.favored_team_spread == 2.5
 
 
+def test_extra_info(tgfp_nfl_obj: TgfpNfl):
+    game_1: TgfpNflGame = tgfp_nfl_obj.games()[0]
+    description: str = game_1.extra_info['description']
+    assert description.startswith('Buffalo Bills at Los Angeles Rams')
+    game_time: str = game_1.extra_info['game_time']
+    assert game_time.startswith('Thu, September 8th at 8:20 PM EDT')
+
+
 def test_api(tgfp_nfl_obj_live: TgfpNfl):
     assert len(tgfp_nfl_obj_live.games()) > 10
     assert len(tgfp_nfl_obj_live.games()) < 20

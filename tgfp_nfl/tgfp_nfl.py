@@ -177,7 +177,9 @@ class TgfpNflGame:
         self._data_source = data_source
         self._game_source_data = game_data
         self._game_status_source_data: dict = game_data['competitions'][0]['status']
-        self._odds_source_data: List = game_data['competitions'][0]['odds']
+        self._odds_source_data: List = []
+        if 'odds' in game_data['competitions'][0]:
+            self._odds_source_data = game_data['competitions'][0]['odds']
         self._home_team: Optional[TgfpNflTeam] = None
         self._away_team: Optional[TgfpNflTeam] = None
         self._favored_team: Optional[TgfpNflTeam] = None

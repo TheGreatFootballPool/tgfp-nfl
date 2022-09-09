@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tgfp-nfl"
-version = "3.3.1"
+version = "3.3.2"
 description = "Python extraction of NFL scores schedule data from abstracted data source"
 authors = ["John Sturgeon <john.sturgeon@me.com>"]
 license = "MIT"

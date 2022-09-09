@@ -133,9 +133,18 @@ class TgfpNfl:
             ))
         return self._standings
 
-    def find_games(self):
-        """ There are currently no filters for this, so it just finds all games """
-        return self.games()
+    def find_game(self, game_id: str) -> Optional[TgfpNflGame]:
+        """ returns a list of all games that optionally """
+        found_game: Optional[TgfpNflGame] = None
+        for game in self.games():
+            found = True
+            if game_id and game_id != game.id:
+                found = False
+            if found:
+                found_game = game
+                break
+
+        return found_game
 
     def find_teams(self, team_id=None, short_name=None) -> [TgfpNflTeam]:
         """ returns a list of all teams optionally filtered by a single team_id """
@@ -245,10 +254,10 @@ class TgfpNflGame:
         teams: List = self._game_source_data['competitions'][0]['competitors']
         if not self._winning_team:
             if 'winner' in teams[0]:
-                if self._home_team.id == teams[0]['uid']:
-                    self._winning_team = self._home_team
+                if teams[0]['winner']:
+                    self._winning_team = self._data_source.find_teams(teams[0]['uid'])[0]
                 else:
-                    self._winning_team = self._away_team
+                    self._winning_team = self._data_source.find_teams(teams[1]['uid'])[0]
         return self._winning_team
 
     @property
@@ -275,14 +284,14 @@ class TgfpNflGame:
             )[0]
             self._spread = self._odds().favored_team_spread
         if teams[0]['homeAway'] == 'home':
-            self._total_home_points = teams[0]['score']
+            self._total_home_points = int(teams[0]['score'])
             self._home_team = self._data_source.find_teams(team_id=teams[0]['uid'])[0]
-            self._total_away_points = teams[1]['score']
+            self._total_away_points = int(teams[1]['score'])
             self._away_team = self._data_source.find_teams(team_id=teams[1]['uid'])[0]
         else:
-            self._total_home_points = teams[1]['score']
+            self._total_home_points = int(teams[1]['score'])
             self._home_team = self._data_source.find_teams(team_id=teams[1]['uid'])[0]
-            self._total_away_points = teams[0]['score']
+            self._total_away_points = int(teams[0]['score'])
             self._away_team = self._data_source.find_teams(team_id=teams[0]['uid'])[0]
 
     @property

@@ -87,6 +87,10 @@ def test_api_game_week_1(tgfp_nfl_obj_live: TgfpNfl):
     assert game.total_home_points == 10
     assert game.total_away_points == 31
     assert game.winning_team == game.away_team
+    team: TgfpNflTeam = tgfp_nfl_obj_live.find_teams('s:20~l:28~t:2')[0]
+    assert team.wins == 1
+    team = tgfp_nfl_obj_live.find_teams('s:20~l:28~t:14')[0]
+    assert team.losses == 1
 
 
 def test_get_schedule(tgfp_nfl_obj_live):

@@ -366,8 +366,8 @@ class TgfpNflStanding:
         self.ties = 0
         for stat in source_standings_data['stats']:
             if stat['type'] == 'wins':
-                self.wins = stat['value']
+                self.wins = int(stat['value'])
             if stat['type'] == 'losses':
-                self.losses = stat['value']
+                self.losses = int(stat['value'])
             if stat['type'] == 'ties':
-                self.ties = stat['value']
+                self.ties = int(stat['value'])

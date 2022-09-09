@@ -232,7 +232,11 @@ class TgfpNflGame:
         return self._spread
 
     @property
-    def score_is_final(self):
+    def is_pregame(self):
+        return self.game_status_type == 'STATUS_SCHEDULED'
+
+    @property
+    def is_final(self):
         return self.game_status_type == 'STATUS_FINAL'
 
     @property

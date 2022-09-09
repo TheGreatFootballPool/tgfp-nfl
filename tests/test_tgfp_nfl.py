@@ -34,8 +34,9 @@ def test_games(tgfp_nfl_obj: TgfpNfl):
     assert isinstance(away_team, TgfpNflTeam)
     assert isinstance(game_1.home_team, TgfpNflTeam)
     assert game_1.id.startswith('s:20~l:28~')
-    assert game_1.score_is_final is False
+    assert game_1.is_final is False
     assert game_1.game_status_type == 'STATUS_SCHEDULED'
+    assert game_1.is_pregame is True
 
 
 def test_odds(tgfp_nfl_obj: TgfpNfl):
@@ -83,7 +84,7 @@ def test_api(tgfp_nfl_obj_live: TgfpNfl):
 
 def test_api_game_week_1(tgfp_nfl_obj_live: TgfpNfl):
     game: TgfpNflGame = tgfp_nfl_obj_live.find_game('s:20~l:28~e:401437654')
-    assert game.score_is_final
+    assert game.is_final
     assert game.total_home_points == 10
     assert game.total_away_points == 31
     assert game.winning_team == game.away_team

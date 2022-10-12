@@ -283,10 +283,14 @@ class TgfpNflGame:
     def __set_home_away_favorite_teams_and_score(self):
         teams: List = self._game_source_data['competitions'][0]['competitors']
         if self._odds():
-            self._favored_team = self._data_source.find_teams(
-                short_name=self._odds().favored_team_short_name
-            )[0]
-            self._spread = self._odds().favored_team_spread
+            if self._odds().favored_team_short_name is None:
+                self._favored_team = self._home_team
+                self._spread = 0.5
+            else:
+                self._favored_team = self._data_source.find_teams(
+                    short_name=self._odds().favored_team_short_name
+                )[0]
+                self._spread = self._odds().favored_team_spread
         if teams[0]['homeAway'] == 'home':
             self._total_home_points = int(teams[0]['score'])
             self._home_team = self._data_source.find_teams(team_id=teams[0]['uid'])[0]
@@ -349,15 +353,27 @@ class TgfpNflOdd:
         self._odd_source_data = odd_data
 
     @property
-    def favored_team_short_name(self) -> str:
-        favorite: str = self._odd_source_data['details']
+    def favored_team_short_name(self) -> Optional[str]:
+        """
+        Get the favorite team short name
+        Returns:
+            Optional[str]: favored team short name (lower case) or None if no team is favored
+        Notes:
+                the string we're parsing looks like:
+                DAL -3.5
+                or
+                EVEN
+        """
+        favorite: str = self._odd_source_data['details'].split()[0].lower
+        if favorite == 'even':
+            return None
         return favorite.split()[0].lower()
 
     @property
     def favored_team_spread(self) -> float:
-        favorite: str = self._odd_source_data['details']
-        if favorite == 'even':
+        if self.favored_team_short_name == 'even':
             return 0
+        favorite: str = self._odd_source_data['details']
         spread: float = float(favorite.split()[1]) * -1
         return spread
 

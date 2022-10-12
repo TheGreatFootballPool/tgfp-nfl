@@ -364,10 +364,10 @@ class TgfpNflOdd:
                 or
                 EVEN
         """
-        favorite: str = self._odd_source_data['details'].split()[0].lower
+        favorite: str = self._odd_source_data['details'].split()[0].lower()
         if favorite == 'even':
             return None
-        return favorite.split()[0].lower()
+        return favorite
 
     @property
     def favored_team_spread(self) -> float:

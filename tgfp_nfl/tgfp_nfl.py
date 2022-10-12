@@ -356,6 +356,8 @@ class TgfpNflOdd:
     @property
     def favored_team_spread(self) -> float:
         favorite: str = self._odd_source_data['details']
+        if favorite == 'even':
+            return 0
         spread: float = float(favorite.split()[1]) * -1
         return spread
 

@@ -207,15 +207,11 @@ class TgfpNflGame:
         return_odds: Optional[TgfpNflOdd] = None
         if self._odds_source_data:
             first_odd: dict = self._odds_source_data[0]
-            return_odds= TgfpNflOdd(
+            return_odds = TgfpNflOdd(
                 data_source=self._data_source,
                 odd_data=first_odd
             )
-            #  Only set the odds if they're not zero (pick-em), otherwise return None
-            if return_odds.favored_team_spread > 0.0:
-                return return_odds
-            else:
-                return None
+        return return_odds
 
     @property
     def favored_team(self) -> Optional[TgfpNflTeam]:
@@ -371,7 +367,7 @@ class TgfpNflOdd:
 
     @property
     def favored_team_spread(self) -> float:
-        if self.favored_team_short_name == 'even':
+        if self.favored_team_short_name is None:
             return 0
         favorite: str = self._odd_source_data['details']
         spread: float = float(favorite.split()[1]) * -1

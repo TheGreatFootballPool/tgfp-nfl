@@ -11,3 +11,7 @@ Python Package for scraping the external site's NFL data (scores, schedule, odds
 
 ## Publishing to pypi
 * Run 'publish to pypi' configuration
+
+### Steps for updating library
+1. after change run `bump_version_and_publish.sh`
+2. Update the `tgfp_job_runner` project (see README.md build instructions)

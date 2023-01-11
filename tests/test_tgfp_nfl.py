@@ -1,4 +1,4 @@
-from fixtures import tgfp_nfl_obj, tgfp_nfl_obj_live
+from fixtures import tgfp_nfl_obj, tgfp_nfl_obj_live, tgfp_nfl_obj_live_week_19
 from tgfp_nfl import TgfpNfl, TgfpNflTeam, TgfpNflGame, TgfpNflOdd
 
 shutup_pylint = tgfp_nfl_obj
@@ -99,3 +99,8 @@ def test_get_schedule(tgfp_nfl_obj_live):
     assert len(games) == 16
     raw_games = tgfp_nfl_obj_live._games_source_data
     assert len(raw_games) == 16
+
+
+def test_playoff_week_19(tgfp_nfl_obj_live_week_19):
+    games = tgfp_nfl_obj_live_week_19.games()
+    assert len(games) == 6

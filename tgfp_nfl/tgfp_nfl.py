@@ -47,7 +47,8 @@ class TgfpNfl:
         """
         content: dict = {}
         season_type = 3 if self._week_no > 18 else 2
-        url_to_query = self._base_site_url + f'/scoreboard?seasontype={season_type}&week={self._week_no}'
+        week_no = self._week_no - 18 if self._week_no > 18 else self._week_no
+        url_to_query = self._base_site_url + f'/scoreboard?seasontype={season_type}&week={week_no}'
         try:
             response = httpx.get(url_to_query)
             content = response.json()

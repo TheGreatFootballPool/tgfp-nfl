@@ -7,4 +7,5 @@ git push
 NEW_VERSION=`poetry version -s`
 git tag v${NEW_VERSION}
 git push origin v${NEW_VERSION}
-doppler run --config prd --command="poetry publish --build --username __token__ --password \$PYPI_TOKEN"
+PYPI_TOKEN=`echo "op://Private/pypi.org/api_token" | op inject`
+poetry publish --build --username __token__ --password PYPI_TOKEN

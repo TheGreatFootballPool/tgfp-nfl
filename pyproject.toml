@@ -1,20 +1,21 @@
 [tool.poetry]
 name = "tgfp-nfl"
-version = "5.2.3"
+version = "5.3.0"
 description = "Python extraction of NFL scores schedule data from abstracted data source"
 authors = ["John Sturgeon <john.sturgeon@me.com>"]
 license = "MIT"
 
 [tool.poetry.dependencies]
-python = "^3.10"
+python = "^3.12"
 onetoonemap = "^1.0.0"
 python-dateutil = "^2.8.2"
-httpx = "^0.25.0"
+httpx = "^0.25.2"
 
-[tool.poetry.dev-dependencies]
-pylint = "^2.15.0"
-pytest = "^7.1.2"
-pytest-mock = "^3.8.2"
+[tool.poetry.group.dev.dependencies]
+poetryup = "^0.12.7"
+pylint = "^3.0.2"
+pytest = "^7.4.3"
+pytest-mock = "^3.12.0"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

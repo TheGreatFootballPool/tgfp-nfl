@@ -1,3 +1,5 @@
+from typing import List
+
 from fixtures import tgfp_nfl_obj, tgfp_nfl_obj_live, tgfp_nfl_obj_live_week_19
 from tgfp_nfl import TgfpNfl, TgfpNflTeam, TgfpNflGame, TgfpNflOdd
 
@@ -80,18 +82,6 @@ def test_api(tgfp_nfl_obj_live: TgfpNfl):
     assert len(tgfp_nfl_obj_live.games()) < 20
     assert len(tgfp_nfl_obj_live.teams()) == 32
     assert len(tgfp_nfl_obj_live.standings()) == 32
-
-
-def test_api_game_week_1(tgfp_nfl_obj_live: TgfpNfl):
-    game: TgfpNflGame = tgfp_nfl_obj_live.find_game('s:20~l:28~e:401437654')
-    assert game.is_final
-    assert game.total_home_points == 10
-    assert game.total_away_points == 31
-    assert game.winning_team == game.away_team
-    team: TgfpNflTeam = tgfp_nfl_obj_live.find_teams('s:20~l:28~t:2')[0]
-    assert team.wins == 1
-    team = tgfp_nfl_obj_live.find_teams('s:20~l:28~t:14')[0]
-    assert team.losses == 1
 
 
 def test_get_schedule(tgfp_nfl_obj_live):

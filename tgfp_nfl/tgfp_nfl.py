@@ -199,6 +199,7 @@ class TgfpNflGame:
         self._total_away_points: int = 0
         self.start_time = parser.parse(game_data['date'])
         self.game_status_type = game_data['status']['type']['name']
+        self.event_id = int(game_data['id'])
 
     def _odds(self) -> Optional[TgfpNflOdd]:
         """

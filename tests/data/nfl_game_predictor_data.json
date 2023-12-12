@@ -1,0 +1,146 @@
+{
+  "$ref": "http:\/\/sports.core.api.espn.com\/v2\/sports\/football\/leagues\/nfl\/events\/401547591\/competitions\/401547591\/predictor?lang=en&region=us",
+  "name": "Green Bay Packers at New York Giants",
+  "shortName": "GB @ NYG",
+  "lastModified": "2023-12-11T10:01Z",
+  "homeTeam": {
+    "team": {
+      "$ref": "http:\/\/sports.core.api.espn.com\/v2\/sports\/football\/leagues\/nfl\/seasons\/2023\/teams\/19?lang=en&region=us"
+    },
+    "statistics": [
+      {
+        "name": "gameProjection",
+        "displayName": "WIN PROB",
+        "shortDisplayName": "GP",
+        "description": "Team's predicted win percentage in this game at time of given BPI run",
+        "abbreviation": "GP",
+        "value": 27.358,
+        "displayValue": "27.4"
+      },
+      {
+        "name": "matchupQuality",
+        "displayName": "Matchup Quality",
+        "shortDisplayName": "MQ",
+        "description": "A measure of projected competitiveness and excitement in the game, using a 0 to 100 scale, with 100 as the most exciting",
+        "abbreviation": "MQ",
+        "value": 15.998,
+        "displayValue": "16"
+      },
+      {
+        "name": "oppSeasonStrengthFbsRank",
+        "displayName": "Opponent Seasson Strength FBS Rank",
+        "shortDisplayName": "OSS FBS RK",
+        "description": "",
+        "abbreviation": "OSS FBS RK",
+        "value": 0.0,
+        "displayValue": "0"
+      },
+      {
+        "name": "oppSeasonStrengthRating",
+        "displayName": "Opponent Seasson Strength Rating",
+        "shortDisplayName": "OSS RT",
+        "description": "",
+        "abbreviation": "OSS RT",
+        "value": -0.183,
+        "displayValue": "-0.2"
+      },
+      {
+        "name": "teamChanceLoss",
+        "displayName": "Team Chance Loss",
+        "shortDisplayName": "TCL",
+        "description": "",
+        "abbreviation": "TCL",
+        "value": 72.423,
+        "displayValue": "72.4"
+      },
+      {
+        "name": "teamChanceTie",
+        "displayName": "Team Chance Tie",
+        "shortDisplayName": "TCT",
+        "description": "",
+        "abbreviation": "TCT",
+        "value": 0.22,
+        "displayValue": ".2"
+      },
+      {
+        "name": "teamPredPtDiff",
+        "displayName": "Team Pred. Point Difference",
+        "shortDisplayName": "TPPD",
+        "description": "",
+        "abbreviation": "TPPD",
+        "value": -7.932,
+        "displayValue": "-7.9"
+      }
+    ]
+  },
+  "awayTeam": {
+    "team": {
+      "$ref": "http:\/\/sports.core.api.espn.com\/v2\/sports\/football\/leagues\/nfl\/seasons\/2023\/teams\/9?lang=en&region=us"
+    },
+    "statistics": [
+      {
+        "name": "gameProjection",
+        "displayName": "WIN PROB",
+        "shortDisplayName": "GP",
+        "description": "Team's predicted win percentage in this game at time of given BPI run",
+        "abbreviation": "GP",
+        "value": 72.423,
+        "displayValue": "72.4"
+      },
+      {
+        "name": "matchupQuality",
+        "displayName": "Matchup Quality",
+        "shortDisplayName": "MQ",
+        "description": "A measure of projected competitiveness and excitement in the game, using a 0 to 100 scale, with 100 as the most exciting",
+        "abbreviation": "MQ",
+        "value": 15.998,
+        "displayValue": "16"
+      },
+      {
+        "name": "oppSeasonStrengthFbsRank",
+        "displayName": "Opponent Seasson Strength FBS Rank",
+        "shortDisplayName": "OSS FBS RK",
+        "description": "",
+        "abbreviation": "OSS FBS RK",
+        "value": 0.0,
+        "displayValue": "0"
+      },
+      {
+        "name": "oppSeasonStrengthRating",
+        "displayName": "Opponent Seasson Strength Rating",
+        "shortDisplayName": "OSS RT",
+        "description": "",
+        "abbreviation": "OSS RT",
+        "value": -10.504,
+        "displayValue": "-10.5"
+      },
+      {
+        "name": "teamChanceLoss",
+        "displayName": "Team Chance Loss",
+        "shortDisplayName": "TCL",
+        "description": "",
+        "abbreviation": "TCL",
+        "value": 27.358,
+        "displayValue": "27.4"
+      },
+      {
+        "name": "teamChanceTie",
+        "displayName": "Team Chance Tie",
+        "shortDisplayName": "TCT",
+        "description": "",
+        "abbreviation": "TCT",
+        "value": 0.22,
+        "displayValue": ".2"
+      },
+      {
+        "name": "teamPredPtDiff",
+        "displayName": "Team Pred. Point Difference",
+        "shortDisplayName": "TPPD",
+        "description": "",
+        "abbreviation": "TPPD",
+        "value": 7.932,
+        "displayValue": "7.9"
+      }
+    ]
+  }
+}

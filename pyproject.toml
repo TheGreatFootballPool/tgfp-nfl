@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "tgfp-nfl"
-version = "5.4.2"
+version = "5.5.0"
 description = "Python extraction of NFL scores schedule data from abstracted data source"
 authors = ["John Sturgeon <john.sturgeon@me.com>"]
 license = "MIT"
@@ -12,7 +12,6 @@ python-dateutil = "^2.8.2"
 httpx = "^0.25.2"
 
 [tool.poetry.group.dev.dependencies]
-poetryup = "^0.12.7"
 pylint = "^3.0.2"
 pytest = "^7.4.3"
 pytest-mock = "^3.12.0"

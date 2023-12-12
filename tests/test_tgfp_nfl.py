@@ -39,6 +39,7 @@ def test_games(tgfp_nfl_obj: TgfpNfl):
     assert game_1.is_final is False
     assert game_1.game_status_type == 'STATUS_SCHEDULED'
     assert game_1.is_pregame is True
+    assert game_1.event_id == 401437654
 
 
 def test_odds(tgfp_nfl_obj: TgfpNfl):

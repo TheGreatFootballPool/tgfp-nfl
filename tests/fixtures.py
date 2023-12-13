@@ -47,3 +47,10 @@ def tgfp_nfl_obj_live_week_19() -> TgfpNfl:
     """ Returns a TGFP object for wildcard weekend """
     live_tgfp = TgfpNfl(week_no=19)
     return live_tgfp
+
+
+@pytest.fixture
+def tgfp_nfl_obj_live_week_14() -> TgfpNfl:
+    """ Returns a TGFP object for week 14 weekend """
+    live_tgfp = TgfpNfl(week_no=14)
+    return live_tgfp

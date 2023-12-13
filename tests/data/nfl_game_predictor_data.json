@@ -1,11 +1,11 @@
 {
-  "$ref": "http:\/\/sports.core.api.espn.com\/v2\/sports\/football\/leagues\/nfl\/events\/401547591\/competitions\/401547591\/predictor?lang=en&region=us",
-  "name": "Green Bay Packers at New York Giants",
-  "shortName": "GB @ NYG",
-  "lastModified": "2023-12-11T10:01Z",
+  "$ref": "http:\/\/sports.core.api.espn.com\/v2\/sports\/football\/leagues\/nfl\/events\/401547578\/competitions\/401547578\/predictor?lang=en&region=us",
+  "name": "New England Patriots at Pittsburgh Steelers",
+  "shortName": "NE @ PIT",
+  "lastModified": "2023-12-12T20:16Z",
   "homeTeam": {
     "team": {
-      "$ref": "http:\/\/sports.core.api.espn.com\/v2\/sports\/football\/leagues\/nfl\/seasons\/2023\/teams\/19?lang=en&region=us"
+      "$ref": "http:\/\/sports.core.api.espn.com\/v2\/sports\/football\/leagues\/nfl\/seasons\/2023\/teams\/23?lang=en&region=us"
     },
     "statistics": [
       {
@@ -14,8 +14,17 @@
         "shortDisplayName": "GP",
         "description": "Team's predicted win percentage in this game at time of given BPI run",
         "abbreviation": "GP",
-        "value": 27.358,
-        "displayValue": "27.4"
+        "value": 64.751,
+        "displayValue": "64.8"
+      },
+      {
+        "name": "gameQuality",
+        "displayName": "Game Quality",
+        "shortDisplayName": "GQ",
+        "description": "",
+        "abbreviation": "GQ",
+        "value": 45.935,
+        "displayValue": "45.9"
       },
       {
         "name": "matchupQuality",
@@ -23,8 +32,8 @@
         "shortDisplayName": "MQ",
         "description": "A measure of projected competitiveness and excitement in the game, using a 0 to 100 scale, with 100 as the most exciting",
         "abbreviation": "MQ",
-        "value": 15.998,
-        "displayValue": "16"
+        "value": 36.032,
+        "displayValue": "36"
       },
       {
         "name": "oppSeasonStrengthFbsRank",
@@ -41,8 +50,26 @@
         "shortDisplayName": "OSS RT",
         "description": "",
         "abbreviation": "OSS RT",
-        "value": -0.183,
-        "displayValue": "-0.2"
+        "value": -4.707,
+        "displayValue": "-4.7"
+      },
+      {
+        "name": "teamAdjGameScore",
+        "displayName": "Team Adjusted Game Score",
+        "shortDisplayName": "TAGS",
+        "description": "",
+        "abbreviation": "TAGS",
+        "value": 11.462,
+        "displayValue": "11.5"
+      },
+      {
+        "name": "teamAvgWp",
+        "displayName": "Team Average Win Percentage",
+        "shortDisplayName": "TAW%",
+        "description": "",
+        "abbreviation": "TAW%",
+        "value": 24.8,
+        "displayValue": "24.8"
       },
       {
         "name": "teamChanceLoss",
@@ -50,8 +77,8 @@
         "shortDisplayName": "TCL",
         "description": "",
         "abbreviation": "TCL",
-        "value": 72.423,
-        "displayValue": "72.4"
+        "value": 34.967999999999996,
+        "displayValue": "35.0"
       },
       {
         "name": "teamChanceTie",
@@ -59,8 +86,26 @@
         "shortDisplayName": "TCT",
         "description": "",
         "abbreviation": "TCT",
-        "value": 0.22,
-        "displayValue": ".2"
+        "value": 0.281,
+        "displayValue": ".3"
+      },
+      {
+        "name": "teamDefEff",
+        "displayName": "Team Defensive Efficiency",
+        "shortDisplayName": "TDE",
+        "description": "",
+        "abbreviation": "TDE",
+        "value": 67.312,
+        "displayValue": "67.3"
+      },
+      {
+        "name": "teamOffEff",
+        "displayName": "Team Offensive Efficiency",
+        "shortDisplayName": "TOE",
+        "description": "",
+        "abbreviation": "TOE",
+        "value": 10.616,
+        "displayValue": "10.6"
       },
       {
         "name": "teamPredPtDiff",
@@ -68,14 +113,41 @@
         "shortDisplayName": "TPPD",
         "description": "",
         "abbreviation": "TPPD",
-        "value": -7.932,
-        "displayValue": "-7.9"
+        "value": 5.066,
+        "displayValue": "5.1"
+      },
+      {
+        "name": "teamRawGameScore",
+        "displayName": "Team Raw Game Score",
+        "shortDisplayName": "TRGS",
+        "description": "",
+        "abbreviation": "TRGS",
+        "value": 24.071,
+        "displayValue": "24.1"
+      },
+      {
+        "name": "teamSTEff",
+        "displayName": "Team ST Efficiency",
+        "shortDisplayName": "TSTE",
+        "description": "",
+        "abbreviation": "TSTE",
+        "value": 77.7,
+        "displayValue": "77.7"
+      },
+      {
+        "name": "teamTotEff",
+        "displayName": "Team Total Efficiency",
+        "shortDisplayName": "TTE",
+        "description": "",
+        "abbreviation": "TTE",
+        "value": 34.717,
+        "displayValue": "34.7"
       }
     ]
   },
   "awayTeam": {
     "team": {
-      "$ref": "http:\/\/sports.core.api.espn.com\/v2\/sports\/football\/leagues\/nfl\/seasons\/2023\/teams\/9?lang=en&region=us"
+      "$ref": "http:\/\/sports.core.api.espn.com\/v2\/sports\/football\/leagues\/nfl\/seasons\/2023\/teams\/17?lang=en&region=us"
     },
     "statistics": [
       {
@@ -84,8 +156,17 @@
         "shortDisplayName": "GP",
         "description": "Team's predicted win percentage in this game at time of given BPI run",
         "abbreviation": "GP",
-        "value": 72.423,
-        "displayValue": "72.4"
+        "value": 34.967999999999996,
+        "displayValue": "35.0"
+      },
+      {
+        "name": "gameQuality",
+        "displayName": "Game Quality",
+        "shortDisplayName": "GQ",
+        "description": "",
+        "abbreviation": "GQ",
+        "value": 45.935,
+        "displayValue": "45.9"
       },
       {
         "name": "matchupQuality",
@@ -93,8 +174,8 @@
         "shortDisplayName": "MQ",
         "description": "A measure of projected competitiveness and excitement in the game, using a 0 to 100 scale, with 100 as the most exciting",
         "abbreviation": "MQ",
-        "value": 15.998,
-        "displayValue": "16"
+        "value": 36.032,
+        "displayValue": "36"
       },
       {
         "name": "oppSeasonStrengthFbsRank",
@@ -111,8 +192,26 @@
         "shortDisplayName": "OSS RT",
         "description": "",
         "abbreviation": "OSS RT",
-        "value": -10.504,
-        "displayValue": "-10.5"
+        "value": -0.444,
+        "displayValue": "-0.4"
+      },
+      {
+        "name": "teamAdjGameScore",
+        "displayName": "Team Adjusted Game Score",
+        "shortDisplayName": "TAGS",
+        "description": "",
+        "abbreviation": "TAGS",
+        "value": 80.407,
+        "displayValue": "80.4"
+      },
+      {
+        "name": "teamAvgWp",
+        "displayName": "Team Average Win Percentage",
+        "shortDisplayName": "TAW%",
+        "description": "",
+        "abbreviation": "TAW%",
+        "value": 75.2,
+        "displayValue": "75.2"
       },
       {
         "name": "teamChanceLoss",
@@ -120,8 +219,8 @@
         "shortDisplayName": "TCL",
         "description": "",
         "abbreviation": "TCL",
-        "value": 27.358,
-        "displayValue": "27.4"
+        "value": 64.751,
+        "displayValue": "64.8"
       },
       {
         "name": "teamChanceTie",
@@ -129,8 +228,26 @@
         "shortDisplayName": "TCT",
         "description": "",
         "abbreviation": "TCT",
-        "value": 0.22,
-        "displayValue": ".2"
+        "value": 0.281,
+        "displayValue": ".3"
+      },
+      {
+        "name": "teamDefEff",
+        "displayName": "Team Defensive Efficiency",
+        "shortDisplayName": "TDE",
+        "description": "",
+        "abbreviation": "TDE",
+        "value": 89.384,
+        "displayValue": "89.4"
+      },
+      {
+        "name": "teamOffEff",
+        "displayName": "Team Offensive Efficiency",
+        "shortDisplayName": "TOE",
+        "description": "",
+        "abbreviation": "TOE",
+        "value": 32.688,
+        "displayValue": "32.7"
       },
       {
         "name": "teamPredPtDiff",
@@ -138,8 +255,35 @@
         "shortDisplayName": "TPPD",
         "description": "",
         "abbreviation": "TPPD",
-        "value": 7.932,
-        "displayValue": "7.9"
+        "value": -5.066,
+        "displayValue": "-5.1"
+      },
+      {
+        "name": "teamRawGameScore",
+        "displayName": "Team Raw Game Score",
+        "shortDisplayName": "TRGS",
+        "description": "",
+        "abbreviation": "TRGS",
+        "value": 75.929,
+        "displayValue": "75.9"
+      },
+      {
+        "name": "teamSTEff",
+        "displayName": "Team ST Efficiency",
+        "shortDisplayName": "TSTE",
+        "description": "",
+        "abbreviation": "TSTE",
+        "value": 22.3,
+        "displayValue": "22.3"
+      },
+      {
+        "name": "teamTotEff",
+        "displayName": "Team Total Efficiency",
+        "shortDisplayName": "TTE",
+        "description": "",
+        "abbreviation": "TTE",
+        "value": 65.283,
+        "displayValue": "65.3"
       }
     ]
   }

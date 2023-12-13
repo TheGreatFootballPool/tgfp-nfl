@@ -1,6 +1,10 @@
+import math
 from typing import List
 
-from fixtures import tgfp_nfl_obj, tgfp_nfl_obj_live, tgfp_nfl_obj_live_week_19
+from fixtures import (tgfp_nfl_obj,
+                      tgfp_nfl_obj_live,
+                      tgfp_nfl_obj_live_week_19,
+                      tgfp_nfl_obj_live_week_14)
 from tgfp_nfl import TgfpNfl, TgfpNflTeam, TgfpNflGame, TgfpNflOdd
 
 shutup_pylint = tgfp_nfl_obj
@@ -95,3 +99,27 @@ def test_get_schedule(tgfp_nfl_obj_live):
 def test_playoff_week_19(tgfp_nfl_obj_live_week_19):
     games = tgfp_nfl_obj_live_week_19.games()
     assert len(games) == 6
+
+
+def test_game_prediction(tgfp_nfl_obj_live_week_14: TgfpNfl):
+    game: TgfpNflGame = tgfp_nfl_obj_live_week_14.find_game(event_id=401547591)
+    assert math.isclose(game.home_team_predicted_win_pct, 27.4)
+    assert math.isclose(game.away_team_predicted_win_pct, 72.4)
+
+
+def test_fpi(tgfp_nfl_obj_live_week_14: TgfpNfl):
+    game: TgfpNflGame = tgfp_nfl_obj_live_week_14.find_game(event_id=401547591)
+    assert math.isclose(game.home_team_fpi, -9.4)
+    assert math.isclose(game.away_team_fpi, -0.4)
+
+
+def test_predicted_winner(tgfp_nfl_obj_live_week_14: TgfpNfl):
+    game: TgfpNflGame = tgfp_nfl_obj_live_week_14.find_game(event_id=401547591)
+    point_diff, winning_team = game.predicted_winning_diff_team
+    assert math.isclose(point_diff, 7.9)
+    assert winning_team.short_name == "gb"
+
+
+def test_matchup_quality(tgfp_nfl_obj_live_week_14: TgfpNfl):
+    game: TgfpNflGame = tgfp_nfl_obj_live_week_14.find_game(event_id=401547591)
+    assert math.isclose(game.matchup_quality, 14.4)

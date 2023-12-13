@@ -5,7 +5,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, List, Dict
+from typing import Optional, List, Dict, Tuple
 from urllib.request import Request, urlopen
 import re
 import json
@@ -27,6 +27,7 @@ class TgfpNfl:
         self._week_no = week_no
         self._base_url = 'https://site.api.espn.com/apis/v2/sports/football/nfl/'
         self._base_site_url = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl'
+        self._base_core_api_url = 'https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/'
 
     def __get_games_source_data(self) -> List:
         """ Get Games from ESPN -- defaults to current season
@@ -85,6 +86,21 @@ class TgfpNfl:
         all_standings: List = afc_standings + nfc_standings
         return all_standings
 
+    def __get_game_predictor_source_data(self, event_id: int) -> List:
+        """ Get Game Predictions from ESPN
+        :return: game prediction source data for one game
+        """
+        content: dict = {}
+        url_to_query = (self._base_core_api_url +
+                        f'events/{event_id}/competitions/{event_id}/predictor')
+        try:
+            response = httpx.get(url_to_query)
+            content = response.json()
+        except httpx.RequestError:
+            print('HTTP Request failed')
+
+        return content
+
     def games(self) -> List[TgfpNflGame]:
         """
         Returns:
@@ -95,7 +111,15 @@ class TgfpNfl:
         if not self._games_source_data:
             self._games_source_data = self.__get_games_source_data()
         for game_data in self._games_source_data:
-            self._games.append(TgfpNflGame(self, game_data=game_data))
+            single_game_data = self.__get_game_predictor_source_data(
+                int(game_data['id'])
+            )
+            a_game: TgfpNflGame = TgfpNflGame(
+                self,
+                game_data=game_data,
+                game_prediction_data=single_game_data
+            )
+            self._games.append(a_game)
 
         return self._games
 
@@ -134,12 +158,16 @@ class TgfpNfl:
             ))
         return self._standings
 
-    def find_game(self, game_id: str) -> Optional[TgfpNflGame]:
+    def find_game(self,
+                  nfl_game_id=None,
+                  event_id=None) -> Optional[TgfpNflGame]:
         """ returns a list of all games that optionally """
         found_game: Optional[TgfpNflGame] = None
         for game in self.games():
             found = True
-            if game_id and game_id != game.id:
+            if nfl_game_id and nfl_game_id != game.id:
+                found = False
+            if event_id and event_id != game.event_id:
                 found = False
             if found:
                 found_game = game
@@ -180,7 +208,7 @@ class TgfpNflGame:
 
     # pylint: disable=too-many-instance-attributes
 
-    def __init__(self, data_source: TgfpNfl, game_data):
+    def __init__(self, data_source: TgfpNfl, game_data, game_prediction_data):
         # pylint: disable=invalid-name
         self.id: str = game_data['uid']
         # pylint: enable=invalid-name
@@ -190,6 +218,7 @@ class TgfpNflGame:
         self._odds_source_data: List = []
         if 'odds' in game_data['competitions'][0]:
             self._odds_source_data = game_data['competitions'][0]['odds']
+        self._game_predictor_source_data = game_prediction_data
         self._home_team: Optional[TgfpNflTeam] = None
         self._away_team: Optional[TgfpNflTeam] = None
         self._favored_team: Optional[TgfpNflTeam] = None
@@ -214,6 +243,19 @@ class TgfpNflGame:
                 odd_data=first_odd
             )
         return return_odds
+
+    def _prediction_helper(
+            self,
+            stat_name: str,
+            home_team: bool = True,
+            key: str = 'displayValue'
+    ) -> [str | float]:
+        team = 'homeTeam' if home_team else 'awayTeam'
+        statistics: List = self._game_predictor_source_data[team]['statistics']
+        for stat in statistics:
+            if stat['name'] == stat_name:
+                return stat[key]
+        return "Not Found"
 
     @property
     def favored_team(self) -> Optional[TgfpNflTeam]:
@@ -278,6 +320,48 @@ class TgfpNflGame:
             self.__set_home_away_favorite_teams_and_score()
         return self._total_away_points
 
+    @property
+    def home_team_predicted_win_pct(self) -> float:
+        return float(self._prediction_helper('gameProjection'))
+
+    @property
+    def away_team_predicted_win_pct(self) -> float:
+        return float(self._prediction_helper('gameProjection', home_team=False))
+
+    @property
+    def home_team_fpi(self) -> float:
+        return float(self._prediction_helper('oppSeasonStrengthRating', home_team=False))
+
+    @property
+    def away_team_fpi(self) -> float:
+        return float(self._prediction_helper('oppSeasonStrengthRating'))
+
+    @property
+    def home_team_predicted_pt_diff(self) -> float:
+        return float(self._prediction_helper('teamPredPtDiff'))
+
+    @property
+    def matchup_quality(self) -> float:
+        return float(self._prediction_helper('matchupQuality'))
+
+    @property
+    def away_team_predicted_pt_diff(self) -> float:
+        return float(self._prediction_helper('teamPredPtDiff', home_team=False))
+
+    @property
+    def predicted_winning_diff_team(self) -> Tuple[float, TgfpNflTeam]:
+        """
+        Get the predicted winner of the game, and the point differential
+        Returns:
+           - (float, TgfpNflTeam) # Point differential (float) winning team
+        """
+        # get either home or away, it doesn't matter
+        diff: float = self.home_team_predicted_pt_diff
+        if diff > 0:
+            return diff, self.home_team
+        diff = self.away_team_predicted_pt_diff
+        return diff, self.away_team
+
     def __set_home_away_favorite_teams_and_score(self):
         teams: List = self._game_source_data['competitions'][0]['competitors']
         if self._odds():
@@ -315,9 +399,7 @@ class TgfpNflTeam:
     # pylint: disable=too-few-public-methods
     def __init__(self, team_data: Dict, team_standings: TgfpNflStanding):
         self.data = team_data
-        # pylint: disable=invalid-name
         self.id = team_data['uid']
-        # pylint: enable=invalid-name
         self.city = team_data['location']
         self.long_name = team_data['shortDisplayName']
         self.short_name: str = str(team_data['abbreviation']).lower()

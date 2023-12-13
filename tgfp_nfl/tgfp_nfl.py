@@ -405,6 +405,8 @@ class TgfpNflTeam:
         self.short_name: str = str(team_data['abbreviation']).lower()
         self.full_name = team_data['displayName']
         self.logo_url = team_data['logos'][0]['href']
+        self.color = team_data['color']
+        self.alternate_color = team_data['alternateColor']
         self.wins = team_standings.wins
         self.losses = team_standings.losses
         self.ties = team_standings.ties

@@ -16,7 +16,7 @@ import httpx
 class TgfpNfl:
     """ The main class for interfacing with Data Source json for sports """
 
-    def __init__(self, week_no, debug=False):
+    def __init__(self, week_no, season_type: int = 0, debug=False):
         self._games = []
         self._teams = []
         self._standings = []
@@ -25,6 +25,7 @@ class TgfpNfl:
         self._standings_source_data = None
         self._debug = debug
         self._week_no = week_no
+        self._season_type = season_type
         self._base_url = 'https://site.api.espn.com/apis/v2/sports/football/nfl/'
         self._base_site_url = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl'
         self._base_core_api_url = 'https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/'
@@ -47,7 +48,10 @@ class TgfpNfl:
         :return: list of games
         """
         content: dict = {}
-        season_type = 3 if self._week_no > 18 else 2
+        season_type: int = self._season_type
+        if not season_type:
+            season_type = 3 if self._week_no > 18 else 2
+            self._season_type = season_type
         week_no = self._week_no - 18 if self._week_no > 18 else self._week_no
         url_to_query = self._base_site_url + f'/scoreboard?seasontype={season_type}&week={week_no}'
         try:
@@ -75,7 +79,7 @@ class TgfpNfl:
         :return: list of teams / standings
         """
         content: dict = {}
-        url_to_query = self._base_url + '/standings?seasontype=2'
+        url_to_query = self._base_url + f'/standings?seasontype={self._season_type}'
         try:
             response = httpx.get(url_to_query)
             content = response.json()

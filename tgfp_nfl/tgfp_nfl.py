@@ -16,7 +16,7 @@ import httpx
 class TgfpNfl:
     """ The main class for interfacing with Data Source json for sports """
 
-    def __init__(self, week_no, season_type: int = 0, debug=False):
+    def __init__(self, week_no, season_type: Optional[int] = None, debug=False):
         self._games = []
         self._teams = []
         self._standings = []
@@ -25,35 +25,18 @@ class TgfpNfl:
         self._standings_source_data = None
         self._debug = debug
         self._week_no = week_no
-        self._season_type = season_type
+        self._season_type: Optional[int] = season_type
         self._base_url = 'https://site.api.espn.com/apis/v2/sports/football/nfl/'
         self._base_site_url = 'https://site.api.espn.com/apis/site/v2/sports/football/nfl'
         self._base_core_api_url = 'https://sports.core.api.espn.com/v2/sports/football/leagues/nfl/'
 
     def __get_games_source_data(self) -> List:
         """ Get Games from ESPN -- defaults to current season
-        :season_type:
-           -Season types are:
-            1: Preseason
-                weeks 1-4 (HOF game is week=1)
-            2: Regular Season
-                weeks 1-18
-            3: Post Season
-                Week #'s
-                -#1 = Wild Card Round
-                -#2 = Divisional Round
-                -#3 = Conference Championships
-                -#4 = Super Bowl
-        if week number is > 18 we shift season type to '3', otherwise we use 2
         :return: list of games
         """
         content: dict = {}
-        season_type: int = self._season_type
-        if not season_type:
-            season_type = 3 if self._week_no > 18 else 2
-            self._season_type = season_type
         week_no = self._week_no - 18 if self._week_no > 18 else self._week_no
-        url_to_query = self._base_site_url + f'/scoreboard?seasontype={season_type}&week={week_no}'
+        url_to_query = self._base_site_url + f'/scoreboard?seasontype={self.season_type}&week={week_no}'
         try:
             response = httpx.get(url_to_query)
             content = response.json()
@@ -79,7 +62,7 @@ class TgfpNfl:
         :return: list of teams / standings
         """
         content: dict = {}
-        url_to_query = self._base_url + f'/standings?seasontype={self._season_type}'
+        url_to_query = self._base_url + f'/standings?seasontype={self.season_type}'
         try:
             response = httpx.get(url_to_query)
             content = response.json()
@@ -104,6 +87,29 @@ class TgfpNfl:
             print('HTTP Request failed')
 
         return content
+
+
+    @property
+    def season_type(self) -> int:
+        """
+        Returns the season_type
+           -Season types are:
+            1: Preseason
+                weeks 1-4 (HOF game is week=1)
+            2: Regular Season
+                weeks 1-18
+            3: Post Season
+                Week #'s
+                -#1 = Wild Card Round
+                -#2 = Divisional Round
+                -#3 = Conference Championships
+                -#4 = Super Bowl
+        Returns:
+
+        """
+        if self._season_type:
+            return self._season_type
+        return 3 if self._week_no > 18 else 2
 
     def games(self) -> List[TgfpNflGame]:
         """

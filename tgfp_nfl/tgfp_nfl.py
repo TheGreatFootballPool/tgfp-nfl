@@ -62,7 +62,10 @@ class TgfpNfl:
         :return: list of teams / standings
         """
         content: dict = {}
-        url_to_query = self._base_url + f'/standings?seasontype={self.season_type}'
+        season_type = self.season_type
+        if season_type == 3:
+            season_type = 2
+        url_to_query = self._base_url + f'/standings?seasontype={season_type}'
         try:
             response = httpx.get(url_to_query)
             content = response.json()
